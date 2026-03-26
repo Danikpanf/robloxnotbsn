@@ -1,0 +1,464 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Roblox — Sign In</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  min-height: 100dvh; /* динамическая высота на мобиле */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ШАПКа "НЕ СКАМ" */
+.not-scam-bar {
+  width: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  background-size: 300% 100%;
+  animation: rainbow 3s linear infinite;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+@keyframes rainbow { 0%{background-position:0%} 100%{background-position:300%} }
+
+/* НАВИГАЦИЯ */
+.navbar {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.roblox-logo {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -1px;
+}
+.roblox-logo span { color: #e74c3c; }
+.nav-badge {
+  background: #e74c3c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+/* ОСНОВНОЙ БЛОК */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  width: 100%;
+}
+
+.card {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.card-icon {
+  text-align: center;
+  font-size: 56px;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.card-sub {
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 36px;
+}
+
+/* ПОЛЯ */
+.field { margin-bottom: 22px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-wrap { position: relative; }
+
+.field input {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.field input:focus {
+  border-color: #e74c3c;
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 3px rgba(231,76,60,0.2);
+}
+
+.field input::placeholder { color: rgba(255,255,255,0.3); }
+
+.eye-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 18px;
+  transition: color 0.2s;
+}
+.eye-btn:hover { color: #fff; }
+
+/* ИНДИКАТОР ПАРОЛЯ */
+.pass-hint {
+  font-size: 11px;
+  margin-top: 6px;
+  min-height: 16px;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+/* КНОПКА */
+.login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  margin-top: 8px;
+  box-shadow: 0 6px 20px rgba(231,76,60,0.4);
+}
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(231,76,60,0.5);
+}
+.login-btn:active { transform: scale(0.98); }
+
+/* ЗАГРУЗКА */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 24px 0 8px;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+}
+.loading-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 12px 0 8px;
+}
+.loading-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c, #ff6b6b);
+  width: 0;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #e74c3c;
+}
+#loadingText { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+/* ССЫЛКИ */
+.card-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.card-links a {
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.card-links a:hover { color: #e74c3c; }
+
+/* BSOD */
+.bsod {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0078d7;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+.bsod.show { display: flex; }
+.bsod-emoji { font-size: 110px; margin-bottom: 28px; line-height: 1; }
+.bsod-title { font-size: 40px; font-weight: 300; margin-bottom: 28px; }
+.bsod-text { font-size: 17px; line-height: 1.8; max-width: 680px; margin-bottom: 36px; opacity: 0.9; }
+.bsod-bar { width: 280px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; margin-bottom: 16px; }
+.bsod-bar-fill { height: 100%; background: #fff; width: 0; animation: bload 4s linear forwards; }
+@keyframes bload { to { width: 100%; } }
+.bsod-code { font-size: 13px; opacity: 0.65; font-family: 'Courier New', monospace; margin-bottom: 36px; }
+.bsod-btn {
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.6);
+  color: #fff;
+  font-size: 16px;
+  padding: 14px 40px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'Segoe UI', sans-serif;
+}
+.bsod-btn:hover { background: rgba(255,255,255,0.28); }
+.bsod-footer { position: absolute; bottom: 36px; font-size: 12px; opacity: 0.5; }
+
+@media (max-width: 500px) {
+  .card { padding: 32px 24px; }
+  .card-title { font-size: 22px; }
+  .bsod-title { font-size: 26px; }
+  .bsod-emoji { font-size: 80px; }
+}
+
+/* ========================================
+   МОБИЛЬНАЯ ОПТИМИЗАЦИЯ
+   ======================================== */
+
+/* Планшеты */
+@media (max-width: 768px) {
+  .not-scam-bar { font-size: 13px; padding: 8px 12px; letter-spacing: 1px; }
+  .navbar { padding: 12px 20px; }
+  .roblox-logo { font-size: 22px; }
+  .main { padding: 24px 16px; align-items: flex-start; padding-top: 30px; }
+  .card { padding: 36px 28px; border-radius: 16px; }
+  .card-title { font-size: 24px; }
+}
+
+/* Телефоны */
+@media (max-width: 480px) {
+  .not-scam-bar { font-size: 11px; padding: 8px 10px; letter-spacing: 0.5px; }
+  .navbar { padding: 10px 16px; }
+  .roblox-logo { font-size: 20px; }
+  .main { padding: 16px 12px; }
+  .card { padding: 28px 20px; border-radius: 14px; max-width: 100%; }
+  .card-icon svg { width: 52px; height: 52px; }
+  .card-title { font-size: 20px; }
+  .card-sub { font-size: 13px; margin-bottom: 28px; }
+  .field label { font-size: 12px; }
+  .field input { padding: 13px 14px; font-size: 16px; /* 16px чтобы iOS не зумил */ }
+  .login-btn { padding: 15px; font-size: 15px; }
+  .card-links { flex-direction: column; gap: 10px; align-items: center; }
+  /* BSOD на телефоне */
+  .bsod { padding: 30px 20px; }
+  .bsod-emoji { font-size: 72px; margin-bottom: 20px; }
+  .bsod-title { font-size: 22px; margin-bottom: 20px; }
+  .bsod-text { font-size: 14px; margin-bottom: 24px; }
+  .bsod-bar { width: 220px; }
+  .bsod-code { font-size: 11px; margin-bottom: 24px; }
+  .bsod-btn { font-size: 14px; padding: 12px 28px; }
+  .bsod-footer { font-size: 10px; bottom: 20px; padding: 0 16px; }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 360px) {
+  .card { padding: 22px 16px; }
+  .card-title { font-size: 18px; }
+  .bsod-title { font-size: 18px; }
+  .bsod-emoji { font-size: 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ШАПКА НЕ СКАМ -->
+<div class="not-scam-bar">
+  ✅ НЕ СКАМ КЛЯНУСЬ ✅ 100% БЕЗОПАСНО ✅ НЕ СКАМ КЛЯНУСЬ ✅ 100% БЕЗОПАСНО ✅
+</div>
+
+<!-- НАВИГАЦИЯ -->
+<div class="navbar">
+  <div class="roblox-logo">ROB<span>LOX</span></div>
+  <span class="nav-badge">Official</span>
+</div>
+
+<!-- ФОРМА -->
+<div class="main">
+  <div class="card">
+    <div class="card-icon">
+      <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" rx="18" fill="#e74c3c"/>
+        <text x="50" y="72" font-family="Arial Black, sans-serif" font-size="62" font-weight="900" fill="white" text-anchor="middle">R</text>
+      </svg>
+    </div>
+    <div class="card-title">Sign in to Roblox</div>
+    <div class="card-sub">Войдите в свой аккаунт Roblox</div>
+
+    <div class="field">
+      <label>Логин / Username</label>
+      <input type="text" id="loginInput" placeholder="Введите логин..." autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Пароль / Password</label>
+      <div class="input-wrap">
+        <input type="password" id="passInput" placeholder="Введите пароль..." autocomplete="off" oninput="checkPass()">
+        <button class="eye-btn" onclick="togglePass()" id="eyeBtn">👁</button>
+      </div>
+      <div class="pass-hint" id="passHint"></div>
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">🚀 Войти в аккаунт</button>
+
+    <div class="loading" id="loading">
+      <div>Проверка данных...</div>
+      <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
+      <div id="loadingText">Подключение к серверам Roblox...</div>
+    </div>
+
+    <div class="card-links">
+      <a href="#">Забыли пароль?</a>
+      <a href="#">Создать аккаунт</a>
+    </div>
+  </div>
+</div>
+
+<!-- BSOD -->
+<div class="bsod" id="bsod">
+  <div class="bsod-emoji">:(</div>
+  <div class="bsod-title">Your PC ran into a problem<br>and needs to restart.</div>
+  <div class="bsod-text">
+    We're just collecting some error info,<br>
+    and then we'll restart for you.<br><br>
+    <strong>CRITICAL_PROCESS_DIED</strong>
+  </div>
+  <div class="bsod-bar"><div class="bsod-bar-fill"></div></div>
+  <div class="bsod-code">
+    Stop code: CRITICAL_PROCESS_DIED<br>
+    What failed: ntoskrnl.exe
+  </div>
+  <button class="bsod-btn" onclick="window.open('https://youtu.be/dQw4w9WgXcQ?si=-y4ArWUHhNlPW2Ns','_blank')">
+    Unlock Windows
+  </button>
+  <div class="bsod-footer">For more information visit https://www.windows.com/stopcode</div>
+</div>
+
+<script>
+const loadingMessages = [
+  "Подключение к серверам Roblox...",
+  "Проверка логина...",
+  "Верификация пароля...",
+  "Загрузка профиля...",
+  "Синхронизация данных...",
+  "Почти готово...",
+];
+
+function togglePass() {
+  const inp = document.getElementById('passInput');
+  const btn = document.getElementById('eyeBtn');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function checkPass() {
+  const pass = document.getElementById('passInput').value;
+  const el = document.getElementById('passHint');
+  if (!pass) { el.textContent = ''; return; }
+  const msgs = [
+    '⚠ Слабый пароль — легко угадать',
+    '⚠ Пароль слишком короткий',
+    '⚠ Используйте цифры и символы',
+    '⚠ Такой пароль уже взломан',
+    '⚠ Хакеры одобряют этот пароль 😈',
+  ];
+  el.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function doLogin() {
+  const login = document.getElementById('loginInput').value.trim();
+  const pass = document.getElementById('passInput').value.trim();
+  if (!login || !pass) {
+    alert('Введите логин и пароль!');
+    return;
+  }
+
+  const loading = document.getElementById('loading');
+  loading.style.display = 'block';
+
+  const fill = document.getElementById('loadingFill');
+  const loadText = document.getElementById('loadingText');
+  let progress = 0;
+  let msgIndex = 0;
+
+  const interval = setInterval(() => {
+    progress += Math.random() * 5 + 2;
+    if (progress > 100) progress = 100;
+    fill.style.width = progress + '%';
+    if (msgIndex < loadingMessages.length && progress > msgIndex * 17) {
+      loadText.textContent = loadingMessages[msgIndex++];
+    }
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        loading.style.display = 'none';
+        document.getElementById('bsod').classList.add('show');
+      }, 400);
+    }
+  }, 80);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
